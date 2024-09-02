@@ -51,9 +51,9 @@ int main(int argc, char *argv[]) {
                 break;
             case 'h':
                 printHelp();
-                return 0;
+                return errorexit;
         }
     }
       
-    return 0;
+    return errorexit;
 }

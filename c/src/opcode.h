@@ -14,8 +14,6 @@
 #ifndef _OPCODE_H_
 #define _OPCODE_H_
 
-#include "opcode.h"
-
 /*
 Example Opcode
 
@@ -28,7 +26,7 @@ Mnemonic Operand ADL Mode Cycle Opcode (hex)
 NOP              X        1     00
 */
 
-typedef struct     {
+typedef struct {
   int number;
   char *name;
   char *description;

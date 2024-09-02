@@ -1,0 +1,11 @@
+# ----------------------------
+# Makefile Options
+# ----------------------------
+
+NAME = ez80op
+
+CFLAGS = -Werror -Wall -Wextra -Oz -DCEDEV
+CXXFLAGS = -Werror -Wall -Wextra -Oz - DCEDEV
+# ----------------------------
+
+include $(shell cedev-config --makefile)
