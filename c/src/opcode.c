@@ -24,18 +24,31 @@
 #include "opcode.h"
 
 opcode *createOpcode(int number,
-                     char *name, 
-                     char *description, 
-                     char *conditionBits) {
+                     enum instructionType type,
+                     char *name,
+                     char *shortDescription,
+                     char *longDescription) {
+    opcode *code = malloc(sizeof(opcode));
+    if (code == NULL) {
+        return NULL; // Memory allocation error
+    }
 
-  opcode *code = malloc(sizeof(opcode));
+    code->number = number;
+    code->type = type;
+    code->name = strdup(name);
+    code->shortDescription = strdup(shortDescription);
+    code->longDescription = strdup(longDescription);
 
-  code->number = number; // Scalars (int, char, etc) can simply be copied
+    return code;
+}
 
-  code->name = strdup(name);
-  code->description = strdup(description);
-  code->conditionBits = strdup(conditionBits);
+void freeOpcode(opcode *code) {
+    if (code == NULL) {
+        return; 
+    }
 
-  return code;
-
+    free(code->name);
+    free(code->shortDescription);
+    free(code->longDescription);
+    free(code);
 }

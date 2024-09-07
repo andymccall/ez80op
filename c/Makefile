@@ -2,17 +2,16 @@
 # Makefile Options
 # ----------------------------
 
-PROJECTNAME=ez80op
-ARCHITECTURE=linux_elf_x86_64
+NAME = ez80op
+
+LINUX_X86_ARCHITECTURE=linux_elf_x86_64
+AGON_Z80_ARCHITECTURE=agon_bin_z80
 
 # Tools and arguments
 CC=gcc
-LFLAGS=-g -Wall -DUNIX
-CFLAGS=$(LFLAGS) -c
 OUTFLAG=-o 
 RELEASE_LFLAGS=-s -static -Wall -O2 -DNDEBUG -DUNIX -Wno-unused-result
 RELEASE_CFLAGS=$(RELEASE_LFLAGS) -c
-.DEFAULT_GOAL := linux
 
 # project directories
 SRCDIR=src
@@ -20,39 +19,45 @@ OBJDIR=obj
 BINDIR=bin
 RELEASEDIR=releases
 
-# Automatically get all sourcefiles
 SRCS=$(wildcard $(SRCDIR)/*.c)
-# Automatically get all objects to make from sources
 OBJS=$(patsubst $(SRCDIR)/%.c, $(OBJDIR)/%.o, $(SRCS))
-# Target project binary
-BIN=$(BINDIR)/$(PROJECTNAME)
+BIN=$(BINDIR)/$(NAME)
 
-# Default rule
-all: linux agon
+all: linux agon windows haiku
 
-linux: $(BINDIR) $(OBJDIR) $(BIN)
+directories:
+	@echo === Creating directories
+	@mkdir -p $(BINDIR)
+	@mkdir -p $(OBJDIR)
+	@mkdir -p $(RELEASEDIR)
 
-agon:
-	@echo === Compiling Agon target
-	@make --file=Makefile-agon --no-print-directory
+linux: directories
+linux: LFLAGS=-g -Wall -DUNIX
+linux: CFLAGS=-g -Wall -DUNIX -c
+linux: $(BIN)
 
-# Release with optimal settings for release target
-release: CFLAGS=$(RELEASE_CFLAGS)
-release: LFLAGS=$(RELEASE_LFLAGS)
-release: all
-release: $(RELEASEDIR)
-release: package
+agon: directories
+agon: CFLAGS = -Werror -Wall -Wextra -Oz -DCEDEV
+agon: CXXFLAGS = -Werror -Wall -Wextra -Oz - DCEDEV
+agon: 
+	@echo === Compiling Agon target	
+	touch $(BINDIR)/$(NAME).bin
 
-# Linking all compiled objects into final binary
+windows: directories
+	@echo === Compiling windows target
+	touch $(BINDIR)/windows.bin
+
+haiku: directories
+	@echo === Compiling Haiku target
+	touch $(BINDIR)/haiku.bin
+
 $(BIN):$(OBJS)
-	@echo === Linking Linux target
 ifeq ($(CC),gcc)
 	$(CC) $(LFLAGS) $(OBJS) $(OUTFLAG) $@
 else
 	$(LINKER) $(LINKERFLAGS)$@ $(OBJS)
 endif
 
-# Compile each .c file into .o file
 $(OBJDIR)/%.o: $(SRCDIR)/%.c
 ifeq ($(CC),gcc)
 	$(CC) $(CFLAGS) $< $(OUTFLAG) $@
@@ -60,27 +65,18 @@ else
 	$(CC) $(CFLAGS)$@ $<
 endif
 
-$(BINDIR):
-	mkdir $(BINDIR)
-
-$(OBJDIR):
-	mkdir $(OBJDIR)
-
-$(RELEASEDIR):
-	mkdir $(RELEASEDIR)
-
-package:
+package: all
+package: directories
 	@echo === Packaging binaries
-	@tar -zcvf $(RELEASEDIR)/$(PROJECTNAME)_$(ARCHITECTURE).gz $(BINDIR)/$(PROJECTNAME)
-	@cp $(BINDIR)/$(PROJECTNAME).bin $(RELEASEDIR)/$(PROJECTNAME).bin
+	@tar -zcvf $(RELEASEDIR)/$(NAME)_$(LINUX_X86_ARCHITECTURE).tar.gz $(BINDIR)/$(NAME)
+	@tar -zcvf $(RELEASEDIR)/$(NAME)_$(AGON_Z80_ARCHITECTURE).tar.gz `$(BINDIR)/$(NAME).bin`
+
+release: directories
+release: all
+release: package
+release: CFLAGS=$(RELEASE_CFLAGS)
+release: LFLAGS=$(RELEASE_LFLAGS)
 
 clean:
 	@echo === Cleaning directories
-
-ifdef OS
-	del /s /q $(BINDIR) >nul 2>&1
-	del /s /q $(OBJDIR) >nul 2>&1
-	del /s /q $(RELEASEDIR) >nul 2>&1
-else
 	@$(RM) -r $(BINDIR) $(OBJDIR) $(RELEASEDIR)
-endif

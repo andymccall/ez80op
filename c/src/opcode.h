@@ -26,16 +26,32 @@ Mnemonic Operand ADL Mode Cycle Opcode (hex)
 NOP              X        1     00
 */
 
+enum instructionType {
+  ARITHMETIC_INSTRUCTIONS,
+  BIT_MANIPULATION,
+  BIT_SHIFTS,
+  BLOCK_OPERATIONS,
+  IO,
+  LOAD_AND_EXCHANGE,
+  LOGIC,
+  PROGRAM_FLOW,
+  PROCESSOR_CONTROL
+};
+
 typedef struct {
   int number;
+  enum instructionType type;
   char *name;
-  char *description;
-  char *conditionBits;
+  char *shortDescription;
+  char *longDescription;
 } opcode;
 
 opcode *createOpcode(int number,
+                     enum instructionType type,
                      char *name,
-                     char *description,
-                     char *conditionBits);
+                     char *shortDescription,
+                     char *longDescription);
  
+void freeOpcode(opcode *code);
+
 #endif /* !_OPCODE_H_ */
