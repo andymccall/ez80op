@@ -18,4 +18,6 @@ obj
 .idea
 .vscode
 
-releases
+*.dat
+
+release
