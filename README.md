@@ -1,6 +1,12 @@
-### ez80op
+## ez80op
 
 This program gives information on eZ80 opcodes.
+
+## Build Status
+
+![main](https://github.com/andymccall/ez80op/actions/workflows/makefile.yml/badge.svg?branch=main)
+
+![develop](https://github.com/andymccall/ez80op/actions/workflows/makefile.yml/badge.svg?branch=develop)
 
 #### Building
 
@@ -8,34 +14,12 @@ Perform the following commands to compile the project:
 
 ```
 
-username@host:~$ cd agon-development/ez80op/c
+username@host:~$ cd ez80op/
 username@host:~$ make
-[compiling] src/main.c
-[lto opt] obj/lto.bc
-[linking] bin/ez80op.bin
 ```
 
-#### Running the program
+### Found this useful?
 
-The newly built program can be run within the Fab Emulator using the following commands:
+[![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/andymccall)
 
-```
-username@host:~$ make run
-```
-
-This will launch the Fab emulator.  Once the emulator has started check the binary is accessible to the emulator by using the dir command:
-
-```
-/ *dir
-Volume: hostfs
-Directory: /
-
-ez80op.bin ez80op.map
-```
-
-Then run the binary using by loading it and issuing the run command:
-
-```
-/ * load ez80op.bin
-/ * run
-```
+I don't write code, documents or software for profit, I do it for enjoyment and to help others. If you get anything useful from this guide, and only if you can afford it, please let me know by buying me a coffee using my Ko-fi tip page [here](https://ko-fi.com/andymccall).
