@@ -16,6 +16,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <string.h>
+#include <ctype.h>
 #include "getopt.h"
 #include "globals.h"
 #include "config.h"
@@ -35,12 +36,31 @@ void printHelp(void) {
 }
 
 opcode* findOpcodeByName(opcode **opcodes, int numOpcodes, const char *targetName) {
+    if (opcodes == NULL || targetName == NULL) {
+        return NULL; // Handle invalid input
+    }
+
+    size_t targetNameLength = strlen(targetName);
     for (int i = 0; i < numOpcodes; i++) {
-        if (strcmp(opcodes[i]->name, targetName) == 0) {
-            return opcodes[i]; // Found the opcode
+        if (strlen(opcodes[i]->name) != targetNameLength) {
+            continue; // Skip opcodes with different name lengths for efficiency
+        }
+
+        // Case-insensitive comparison
+        int match = 1; 
+        for (size_t j = 0; j < targetNameLength; j++) {
+            if (toupper(opcodes[i]->name[j]) != toupper(targetName[j])) {
+                match = 0;
+                break;
+            }
+        }
+
+        if (match) {
+            return opcodes[i];
         }
     }
-    return NULL; // Opcode not found
+
+    return NULL;
 }
 
 int main(int argc, char *argv[]) {
@@ -57,32 +77,44 @@ int main(int argc, char *argv[]) {
     
     coloroutput = true;
 
-    // // Create some opcodes
-    // opcode *opcodes[] = {
-    //     createOpcode(1,
-    //                 ARITHMETIC_INSTRUCTIONS,
-    //                 "ADC",
-    //                 "Add with Carry",
-    //                 "The (HL) operand is an 8-bit value retrieved from the memory location specified by the contents of the multibyte register HL. This 8-bit value and the Carry Flag (C) are added to the contents of the accumulator, A. The result is stored in the accumulator."),
-    //     createOpcode(2,
-    //                 ARITHMETIC_INSTRUCTIONS,
-    //                 "ADD",
-    //                 "Add without Carry",
-    //                 "The ir operand is any of IXH, IXL, IYH, or IYL. The ir operand is added to the contents of the accumulator, A. The result is stored in the accumulator.")
+    // Create some opcodes
+    opcode *opcodes[] = {
+            createOpcode(
+                    1,               // Opcode number
+                    ARITHMETIC_INSTRUCTIONS, // Instruction type
+                    "ADD",            // Name
+                    "Add registers",  // Short description
+                    "Adds the contents of two registers and stores the result in the destination register", // Long description
+                    (ConditionBits) { // Create ConditionBits directly within the call
+                        .S = true,
+                        .S_explanation = "Sign flag is set if the result is negative",
+                        .Z = true,
+                        .Z_explanation = "Zero flag is set if the result is zero",
+                        .H = false,
+                        .H_explanation = NULL, 
+                        .PV = false,
+                        .PV_explanation = NULL,
+                        .N = true,
+                        .N_explanation = "Negative flag is set if the result is negative",
+                        .C = false,
+                        .C_explanation = NULL
+                    } 
+                )
         
-    // };
-    // int numOpcodes = sizeof(opcodes) / sizeof(opcodes[0]);
+    };
 
-    // // Save opcodes to file
-    // if (saveOpcodesToFile("opcodes.dat", opcodes, numOpcodes) != 0) {
-    //     fprintf(stderr, "Error saving opcodes to file.\n");
-    //     return 1;
-    // }
+    int numOpcodes = sizeof(opcodes) / sizeof(opcodes[0]);
 
-    // // Free the original opcodes (optional, if you don't need them anymore)
-    // for (int i = 0; i < numOpcodes; i++) {
-    //     freeOpcode(opcodes[i]);
-    // }
+    // Save opcodes to file
+    if (saveOpcodesToFile("opcodes.dat", opcodes, numOpcodes) != 0) {
+        fprintf(stderr, "Error saving opcodes to file.\n");
+        return 1;
+    }
+
+    // Free the original opcodes (optional, if you don't need them anymore)
+    for (int i = 0; i < numOpcodes; i++) {
+        freeOpcode(opcodes[i]);
+    }
 
     while ((opt = getopt(argc, argv, "vhc")) != -1) {
         switch(opt) {
@@ -113,25 +145,11 @@ int main(int argc, char *argv[]) {
             return 1;
         }
 
-        // // Use the loaded opcodes
-        // for (int i = 0; i < loadedNumOpcodes; i++) {
-        
-        //     printf("%s\n",loadedOpcodes[i]->name);
-        //     printf("   %s\n",loadedOpcodes[i]->shortDescription);
-        //     printf("Description\n");
-        //     printf("   %s\n",loadedOpcodes[i]->longDescription);
-            
-        //     freeOpcode(loadedOpcodes[i]);
-        // }
-
         //const char *targetOpcodeName = first_argument;
         opcode *foundOpcode = findOpcodeByName(loadedOpcodes, loadedNumOpcodes, first_argument);
 
         if (foundOpcode != NULL) {
-            printf("%s\n",foundOpcode->name);
-            printf("   %s\n",foundOpcode->shortDescription);
-            printf("Description\n");
-            printf("   %s\n",foundOpcode->longDescription);
+            printOpcode(foundOpcode);
 
         } else {
             printf("Opcode '%s' not found.\n", first_argument);

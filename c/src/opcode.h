@@ -39,19 +39,50 @@ enum instructionType {
 };
 
 typedef struct {
+    bool S;
+    char *S_explanation;
+    bool Z;
+    char *Z_explanation;
+    bool H;
+    char *H_explanation;
+    bool PV;
+    char *PV_explanation;
+    bool N;
+    char *N_explanation;
+    bool C;
+    char *C_explanation;
+} ConditionBits;
+
+typedef struct {
   int number;
   enum instructionType type;
   char *name;
   char *shortDescription;
   char *longDescription;
+  struct { 
+      bool S;
+      char *S_explanation;
+      bool Z;
+      char *Z_explanation;
+      bool H;
+      char *H_explanation;
+      bool PV;
+      char *PV_explanation;
+      bool N;
+      char *N_explanation;
+      bool C;
+      char *C_explanation;
+  } conditionBits; 
 } opcode;
 
 opcode *createOpcode(int number,
                      enum instructionType type,
                      char *name,
                      char *shortDescription,
-                     char *longDescription);
+                     char *longDescription,
+                     ConditionBits conditionBits);
  
 void freeOpcode(opcode *code);
+void printOpcode(opcode *code);
 
 #endif /* !_OPCODE_H_ */
