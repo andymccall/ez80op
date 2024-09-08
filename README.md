@@ -4,7 +4,7 @@ This program gives information on eZ80 opcodes.
 
 ## Build Status
 
-![main](https://github.com/andymccall/ez80op/actions/workflows/makefile.yml/badge.svg?branch=main) ![develop](https://github.com/andymccall/ez80op/actions/workflows/makefile.yml/badge.svg?branch=develop)
+![main](https://github.com/andymccall/ez80op/actions/workflows/makefile-main.yml/badge.svg?branch=main) ![develop](https://github.com/andymccall/ez80op/actions/workflows/makefile-develop.yml/badge.svg?branch=develop)
 
 ## Building
 
