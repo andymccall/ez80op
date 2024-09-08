@@ -4,9 +4,9 @@ This program gives information on eZ80 opcodes.
 
 ## Build Status
 
-Main ![main](https://github.com/andymccall/ez80op/actions/workflows/makefile.yml/badge.svg?branch=main) Develop: ![develop](https://github.com/andymccall/ez80op/actions/workflows/makefile.yml/badge.svg?branch=develop)
+![main](https://github.com/andymccall/ez80op/actions/workflows/makefile.yml/badge.svg?branch=main) ![develop](https://github.com/andymccall/ez80op/actions/workflows/makefile.yml/badge.svg?branch=develop)
 
-#### Building
+## Building
 
 Perform the following commands to compile the project:
 
@@ -15,7 +15,7 @@ username@host:~$ cd ez80op/
 username@host:~$ make
 ```
 
-### Found this useful?
+## Found this useful?
 
 [![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/andymccall)
 
