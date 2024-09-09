@@ -14,6 +14,8 @@
 #ifndef _OPCODE_H_
 #define _OPCODE_H_
 
+#include <stdbool.h>
+
 /*
 Example Opcode
 
