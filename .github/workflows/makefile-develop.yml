@@ -13,7 +13,17 @@ jobs:
     - uses: actions/checkout@v4
 
     - name: Install Prerequisites
-      run: sudo apt-get install -y build-essential gcc-aarch64-linux-gnu binutils-aarch64-linux-gnu gcc-arm-linux-gnueabi binutils-arm-linux-gnueabi
+    run: |
+      sudo apt-get install -y build-essential gcc-aarch64-linux-gnu binutils-aarch64-linux-gnu gcc-arm-linux-gnueabi binutils-arm-linux-gnueabi
+      wget https://github.com/CE-Programming/toolchain/releases/latest/download/CEdev-Linux.tar.gz
+      tar zxpvf CEdev-Linux.tar.gz
+      rm CEdev-Linux.tar.gz
+      mv CEdev agdev
+      wget https://github.com/pcawte/AgDev/releases/download/v3.0.0/AgDev_release_v3.0.0_linux.zip
+      unzip -d agdev -o AgDev_release_v3.0.0_linux.zip
+      rm AgDev_release_v3.0.0_linux.zip
+      echo "$(pwd)/agdev/bin" >> $GITHUB_PATH
+      echo "AGDEV_BASE=$(pwd)/agdev" >> $GITHUB_ENV
 
     - name: Make All
       run: make all
