@@ -23,6 +23,10 @@
 #include "opcode.h"
 #include "data.h"
 
+#ifndef GIT_INFO
+#define GIT_INFO "unknown"
+#endif
+
 void printVersion(void) {
     printf("ez80op version %d.%d-%s, (C)2024 - Andy McCall\r\n",VERSION,REVISION,GIT_INFO);
 }
