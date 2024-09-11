@@ -22,13 +22,11 @@
 #include "config.h"
 #include "opcode.h"
 #include "data.h"
-
-#ifndef GIT_INFO
-#define GIT_INFO "unknown"
-#endif
+#include "constants.h"
 
 void printVersion(void) {
-    printf("ez80op version %d.%d-%s, (C)2024 - Andy McCall\r\n",VERSION,REVISION,GIT_INFO);
+    printf("%s version %d.%d-%s, (C)%s - %s\r\n",PROGRAM_NAME,VERSION,REVISION,GIT_INFO,BUILD_YEAR,AUTHOR);
+    printf("%s\r\n",GIT_REPOSITORY);
 }
 
 void printHelp(void) {

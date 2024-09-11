@@ -7,6 +7,7 @@ ARMHF_PROJECT_NAME = ez80op_linux_armhf
 ARM64_PROJECT_NAME = ez80op_linux_aarch64
 Z80_PROJECT_NAME = ez80op_agon_z80
 GIT_INFO := "$(shell git describe --always --tags)"
+BUILD_YEAR := $(shell date +'%Y')
 
 # Architecture-Specific Compilers and Flags
 X86_CC = gcc
