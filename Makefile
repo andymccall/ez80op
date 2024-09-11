@@ -6,6 +6,7 @@ X86_PROJECT_NAME = ez80op_linux_x86_64
 ARMHF_PROJECT_NAME = ez80op_linux_armhf
 ARM64_PROJECT_NAME = ez80op_linux_aarch64
 Z80_PROJECT_NAME = ez80op_agon_z80
+GIT_INFO := "$(shell git describe --always --tags)"
 
 # Architecture-Specific Compilers and Flags
 X86_CC = gcc
@@ -15,10 +16,11 @@ Z80_CC = ez80-clang
 Z80_CL = ez80-link
 Z80_ASM = fasmg
 AGDEV_BASE = $(shell echo $$AGDEV_BASE)
-X86_CFLAGS = -Wall -g
-ARM64_CFLAGS = -static
-ARMHF_CFLAGS = -static
-Z80_CFLAGS = -Werror -Wall -Wextra -Oz -DCEDEV
+COMMON_FLAGS = -DGIT_INFO=\"$(GIT_INFO)\"
+X86_CFLAGS = -Wall -g $(COMMON_FLAGS)
+ARM64_CFLAGS = -static $(COMMON_FLAGS)
+ARMHF_CFLAGS = -static $(COMMON_FLAGS)
+Z80_CFLAGS = -Werror -Wall -Wextra -Oz -DCEDEV $(COMMON_FLAGS)
                            
 EZLLVMFLAGS = -mllvm -profile-guided-section-prefix=false
 EZCOMMONFLAGS = -emit-llvm -nostdinc -isystem $(AGDEV_BASE)/include -I$(SRC_DIR) -fno-threadsafe-statics -Xclang -fforce-mangle-main-argc-argv $(EZLLVMFLAGS) -DNDEBUG  -g0 $(Z80_CFLAGS)
@@ -65,7 +67,7 @@ UNITY_LIB = $(UNITY_DIR)/unity.c
 
 all: x86 arm64 armhf z80
 
-x86: CFLAGS += $(X86_CFLAGS)
+x86: CFLAGS += $(X86_CFLAGS) 
 x86: CC = $(X86_CC)
 x86: $(X86_PROJECT_NAME)
 
