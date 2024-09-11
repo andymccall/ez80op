@@ -24,7 +24,7 @@
 #include "data.h"
 
 void printVersion(void) {
-    printf("ez80op version %d.%d, (C)2024 - Andy McCall\r\n",VERSION,REVISION);
+    printf("ez80op version %d.%d-%s, (C)2024 - Andy McCall\r\n",VERSION,REVISION,GIT_INFO);
 }
 
 void printHelp(void) {
