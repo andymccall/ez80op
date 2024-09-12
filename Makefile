@@ -42,9 +42,11 @@ OBJ_X86_DIR = x86
 OBJ_ARM64_DIR = arm64
 OBJ_ARMHF_DIR = armhf
 OBJ_Z80_DIR = z80
+OBJ_TEST_DIR = test
 BIN_DIR = bin
 TEST_DIR = tests
 RELEASE_DIR = release
+TEST_EXECUTABLE = test_runner
 
 # Source and Object Files
 SOURCES = $(wildcard $(SRC_DIR)/*.c)
@@ -55,14 +57,19 @@ Z80_OBJECTS = $(patsubst $(SRC_DIR)/%.c, $(OBJ_DIR)/$(OBJ_Z80_DIR)/%.o, $(SOURCE
 
 # Test Files and Object Files (if using Unity, adjust accordingly)
 TEST_SOURCES = $(wildcard $(TEST_DIR)/*.c)
-TEST_OBJECTS = $(patsubst $(TEST_DIR)/%.c, $(OBJ_DIR)/%.o, $(TEST_SOURCES))
+TEST_OBJECTS = $(patsubst $(TEST_DIR)/%.c, $(OBJ_DIR)/$(OBJ_TEST_DIR)/%.o, $(TEST_SOURCES))
 
 # Include Directories
-INCLUDES = -Iinclude # Adjust if you have additional include directories
+INCLUDES = -Iinclude -Ilib/unity/src # Adjust if you have additional include directories
 
 # Unity Library (if using Unity for testing)
-UNITY_DIR = path/to/unity # Update with the actual path
-UNITY_LIB = $(UNITY_DIR)/unity.c
+UNITY_DIR = lib/unity
+UNITY_SRC = $(UNITY_DIR)/src/unity.c
+
+# Define variables for coverage
+COVERAGE_DIR = coverage
+COVERAGE_INFO = $(COVERAGE_DIR)/coverage.info
+COVERAGE_HTML = $(COVERAGE_DIR)/html
 
 # Targets
 
@@ -103,8 +110,11 @@ $(Z80_PROJECT_NAME): $(BIN_DIR) $(OBJ_DIR)/$(OBJ_Z80_DIR) $(Z80_OBJECTS)
 	
 # Testing Target (adjust if using a different testing framework)
 
-test: $(TEST_OBJECTS) $(OBJECTS) $(UNITY_LIB)
-	$(CC) $(CFLAGS) $(INCLUDES) $^ -o $(TEST_EXECUTABLE)
+test: CFLAGS += -fprofile-arcs -ftest-coverage
+test: LDFLAGS += -lgcov
+
+test: $(TEST_OBJECTS) $(OBJECTS) $(UNITY_SRC)
+	$(CC) $(CFLAGS) $(INCLUDES) $(UNITY_OBJECT) $^ -o $(TEST_EXECUTABLE)
 	./$(TEST_EXECUTABLE)
 
 # Release Target (optimize for performance)
@@ -147,7 +157,7 @@ package_z80: release_z80
 # Cleanup Target
 
 clean:
-	rm -rf $(OBJ_DIR) $(BIN_DIR) $(TEST_DIR) $(RELEASE_DIR) $(X86_PROJECT_NAME) $(ARM64_PROJECT_NAME) $(ARMHF_PROJECT_NAME) $(Z80_PROJECT_NAME) $(TEST_EXECUTABLE) analysis.txt gmon.out
+	rm -rf $(OBJ_DIR) $(BIN_DIR) $(RELEASE_DIR) $(COVERAGE_DIR) $(X86_PROJECT_NAME) $(ARM64_PROJECT_NAME) $(ARMHF_PROJECT_NAME) $(Z80_PROJECT_NAME) $(TEST_EXECUTABLE) analysis.txt gmon.out *.gcda *.gcno
 
 # Create directories
 
@@ -166,10 +176,10 @@ $(OBJ_DIR)/$(OBJ_ARMHF_DIR):
 $(OBJ_DIR)/$(OBJ_Z80_DIR):
 	mkdir -p $@
 
-$(BIN_DIR):
+$(OBJ_DIR)/$(OBJ_TEST_DIR):
 	mkdir -p $@
 
-$(TEST_DIR):
+$(BIN_DIR):
 	mkdir -p $@
 
 $(RELEASE_DIR):
@@ -189,5 +199,20 @@ $(OBJ_DIR)/$(OBJ_ARMHF_DIR)/%.o: $(SRC_DIR)/%.c
 $(OBJ_DIR)/$(OBJ_Z80_DIR)/%.o: $(SRC_DIR)/%.c
 	$(CC) -MD $(CFLAGS) $(INCLUDES) -c $< -o $@
 
-$(OBJ_DIR)/%.o: $(TEST_DIR)/%.c
+$(OBJ_DIR)/$(OBJ_TEST_DIR)/%.o: $(TEST_DIR)/%.c | $(OBJ_DIR)/$(OBJ_TEST_DIR)
 	$(CC) $(CFLAGS) $(INCLUDES) -c $< -o $@
+
+# Compile Unity object file
+$(UNITY_OBJECT): $(UNITY_SRC) | $(OBJ_TEST_DIR)
+	$(CC) $(CFLAGS) $(INCLUDES) -c $< -o $@
+
+# Add a target to generate coverage reports
+coverage: test
+	mkdir -p $(COVERAGE_DIR)
+	lcov --capture --directory . --output-file $(COVERAGE_INFO)
+	lcov --remove $(COVERAGE_INFO) '/usr/*' --output-file $(COVERAGE_INFO)
+	genhtml $(COVERAGE_INFO) --output-directory $(COVERAGE_HTML)
+
+# Clean coverage data
+clean-coverage:
+	rm -rf $(COVERAGE_DIR) *.gcda *.gcno
