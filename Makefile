@@ -6,6 +6,8 @@ X86_PROJECT_NAME = ez80op_linux_x86_64
 ARMHF_PROJECT_NAME = ez80op_linux_armhf
 ARM64_PROJECT_NAME = ez80op_linux_aarch64
 Z80_PROJECT_NAME = ez80op_agon_z80
+GIT_INFO := "$(shell git describe --always --tags)"
+BUILD_YEAR := $(shell date +'%Y')
 
 # Architecture-Specific Compilers and Flags
 X86_CC = gcc
@@ -15,10 +17,11 @@ Z80_CC = ez80-clang
 Z80_CL = ez80-link
 Z80_ASM = fasmg
 AGDEV_BASE = $(shell echo $$AGDEV_BASE)
-X86_CFLAGS = -Wall -g
-ARM64_CFLAGS = -static
-ARMHF_CFLAGS = -static
-Z80_CFLAGS = -Werror -Wall -Wextra -Oz -DCEDEV
+COMMON_FLAGS = -DGIT_INFO=\"$(GIT_INFO)\"
+X86_CFLAGS = -Wall -g $(COMMON_FLAGS)
+ARM64_CFLAGS = -static $(COMMON_FLAGS)
+ARMHF_CFLAGS = -static $(COMMON_FLAGS)
+Z80_CFLAGS = -Werror -Wall -Wextra -Oz -DCEDEV $(COMMON_FLAGS)
                            
 EZLLVMFLAGS = -mllvm -profile-guided-section-prefix=false
 EZCOMMONFLAGS = -emit-llvm -nostdinc -isystem $(AGDEV_BASE)/include -I$(SRC_DIR) -fno-threadsafe-statics -Xclang -fforce-mangle-main-argc-argv $(EZLLVMFLAGS) -DNDEBUG  -g0 $(Z80_CFLAGS)
@@ -65,7 +68,7 @@ UNITY_LIB = $(UNITY_DIR)/unity.c
 
 all: x86 arm64 armhf z80
 
-x86: CFLAGS += $(X86_CFLAGS)
+x86: CFLAGS += $(X86_CFLAGS) 
 x86: CC = $(X86_CC)
 x86: $(X86_PROJECT_NAME)
 
@@ -96,7 +99,7 @@ z80: $(Z80_PROJECT_NAME)
 $(Z80_PROJECT_NAME): $(BIN_DIR) $(OBJ_DIR)/$(OBJ_Z80_DIR) $(Z80_OBJECTS)
 	$(CL) $(Z80_OBJECTS) -o $(OBJ_DIR)/$(OBJ_Z80_DIR)/lto.bc $(LDFLAGS)
 	$(CC) -S $(EZLLVMFLAGS) $(Z80_CFLAGS) $(OBJ_DIR)/$(OBJ_Z80_DIR)/lto.bc -o $(OBJ_DIR)/$(OBJ_Z80_DIR)/lto.src
-	$(Z80_ASM) -n '$(AGDEV_BASE)/meta/ld.alm' -i 'DEBUG := 0' -i 'PROG_NAME := '\''$(Z80_PROJECT_NAME)'\''' -i 'HAS_LIBC := 1' -i 'HAS_LIBCXX := 1' -i 'HAS_AGON := 1' -i 'PREFER_OS_CRT := 0' -i 'PREFER_OS_LIBC := 0' -i 'HAS_EXIT_HANDLER := 1' -i 'HAS_ARG_PROCESSING := 0' -i 'include "$(AGDEV_BASE)/meta/linker_script"' -i 'range .bss $$080000 : $$09FFFF' -i 'provide __stack = $$0AFFFF' -i 'locate .header at $$040000' -i 'source "$(AGDEV_BASE)/lib/crt/crt0.src", "obj/z80/lto.src"' -i 'library "$(AGDEV_BASE)/lib/libload/fatdrvce.lib", "$(AGDEV_BASE)/lib/libload/fileioc.lib", "$(AGDEV_BASE)/lib/libload/fontlibc.lib", "$(AGDEV_BASE)/lib/libload/graphx.lib", "$(AGDEV_BASE)/lib/libload/keypadc.lib", "$(AGDEV_BASE)/lib/libload/msddrvce.lib", "$(AGDEV_BASE)/lib/libload/srldrvce.lib", "$(AGDEV_BASE)/lib/libload/usbdrvce.lib"'  $(BIN_DIR)/$(Z80_PROJECT_NAME).bin
+	$(Z80_ASM) -n '$(AGDEV_BASE)/meta/ld.alm' -i 'DEBUG := 0' -i 'PROG_NAME := '\''$(Z80_PROJECT_NAME)'\''' -i 'HAS_LIBC := 1' -i 'HAS_LIBCXX := 1' -i 'HAS_AGON := 1' -i 'PREFER_OS_CRT := 0' -i 'PREFER_OS_LIBC := 0' -i 'HAS_EXIT_HANDLER := 1' -i 'HAS_ARG_PROCESSING := 0' -i 'include "$(AGDEV_BASE)/meta/linker_script"' -i 'range .bss $$$(BSSHEAP_LOW) : $$$(BSSHEAP_HIGH)' -i 'provide __stack = $$$(STACK_HIGH)' -i 'locate .header at $$$(INIT_LOC)' -i 'source "$(AGDEV_BASE)/lib/crt/crt0.src", "obj/z80/lto.src"' -i 'library "$(AGDEV_BASE)/lib/libload/fatdrvce.lib", "$(AGDEV_BASE)/lib/libload/fileioc.lib", "$(AGDEV_BASE)/lib/libload/fontlibc.lib", "$(AGDEV_BASE)/lib/libload/graphx.lib", "$(AGDEV_BASE)/lib/libload/keypadc.lib", "$(AGDEV_BASE)/lib/libload/msddrvce.lib", "$(AGDEV_BASE)/lib/libload/srldrvce.lib", "$(AGDEV_BASE)/lib/libload/usbdrvce.lib"'  $(BIN_DIR)/$(Z80_PROJECT_NAME).bin
 	
 # Testing Target (adjust if using a different testing framework)
 
