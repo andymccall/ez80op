@@ -51,6 +51,10 @@ jobs:
       with:
         submodules: true
 
+        - name: Install Prerequisites
+        run: |
+          sudo apt-get install -y lcov
+
     - name: Run Tests
       run: make test
 
