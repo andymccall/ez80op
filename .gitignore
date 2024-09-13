@@ -21,3 +21,5 @@ obj
 *.dat
 
 release
+coverage
+test_runner*
