@@ -1,5 +1,6 @@
 #include "../lib/unity/src/unity.h"  // The Unity test framework
 #include "../src/constants.h"  // Adjust the path as necessary
+#include "test_constants.h"
 
 void setUp(void) {
     // Set up code, if needed
@@ -27,14 +28,4 @@ void test_BUILD_YEAR(void) {
 
 void test_AUTHOR(void) {
     TEST_ASSERT_EQUAL_STRING("Andy McCall", AUTHOR);
-}
-
-int main(void) {
-    UNITY_BEGIN();
-    RUN_TEST(test_PROGRAM_NAME);
-    RUN_TEST(test_GIT_REPOSITORY);
-    RUN_TEST(test_GIT_INFO);
-    RUN_TEST(test_BUILD_YEAR);
-    RUN_TEST(test_AUTHOR);
-    return UNITY_END();
 }

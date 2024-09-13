@@ -56,8 +56,9 @@ ARMHF_OBJECTS = $(patsubst $(SRC_DIR)/%.c, $(OBJ_DIR)/$(OBJ_ARMHF_DIR)/%.o, $(SO
 Z80_OBJECTS = $(patsubst $(SRC_DIR)/%.c, $(OBJ_DIR)/$(OBJ_Z80_DIR)/%.o, $(SOURCES))
 
 # Test Files and Object Files (if using Unity, adjust accordingly)
-TEST_SOURCES = $(wildcard $(TEST_DIR)/*.c)
-TEST_OBJECTS = $(patsubst $(TEST_DIR)/%.c, $(OBJ_DIR)/$(OBJ_TEST_DIR)/%.o, $(TEST_SOURCES))
+TEST_SOURCES = $(filter-out $(SRC_DIR)/main.c, $(wildcard $(SRC_DIR)/*.c)) $(wildcard $(TEST_DIR)/*.c)
+TEST_OBJECTS = $(patsubst $(TEST_DIR)/%.c, $(OBJ_DIR)/$(OBJ_TEST_DIR)/%.o, $(wildcard $(TEST_DIR)/*.c)) \
+               $(patsubst $(SRC_DIR)/%.c, $(OBJ_DIR)/$(OBJ_TEST_DIR)/%.o, $(filter-out $(SRC_DIR)/main.c, $(wildcard $(SRC_DIR)/*.c)))
 
 # Include Directories
 INCLUDES = -Iinclude -Ilib/unity/src # Adjust if you have additional include directories
@@ -198,6 +199,9 @@ $(OBJ_DIR)/$(OBJ_ARMHF_DIR)/%.o: $(SRC_DIR)/%.c
 
 $(OBJ_DIR)/$(OBJ_Z80_DIR)/%.o: $(SRC_DIR)/%.c
 	$(CC) -MD $(CFLAGS) $(INCLUDES) -c $< -o $@
+
+$(OBJ_DIR)/$(OBJ_TEST_DIR)/%.o: $(SRC_DIR)/%.c
+	$(CC) $(CFLAGS) $(INCLUDES) -c $< -o $@
 
 $(OBJ_DIR)/$(OBJ_TEST_DIR)/%.o: $(TEST_DIR)/%.c | $(OBJ_DIR)/$(OBJ_TEST_DIR)
 	$(CC) $(CFLAGS) $(INCLUDES) -c $< -o $@
