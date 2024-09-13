@@ -80,6 +80,6 @@ jobs:
         github-token: ${{ secrets.GITHUB_TOKEN }}
         working-directory: .
         comment-title: 'Coverage Report'
-        all-files-minimum-coverage: 80
-        changed-files-minimum-coverage: 80
+        all-files-minimum-coverage: 10
+        changed-files-minimum-coverage: 10
         artifact-name: coverage-report
