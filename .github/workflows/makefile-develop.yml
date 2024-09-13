@@ -3,7 +3,10 @@ name: Develop
 on:
   push:
     branches: [ "develop" ]
-    
+  pull_request:
+    branches:
+      - develop
+
 jobs:
 
   analysis:
@@ -66,3 +69,17 @@ jobs:
       with:
         name: coverage-report
         path: coverage/html
+    
+    - name: Setup lcov
+      uses: hrishikesh-kadam/setup-lcov@v1
+
+    - name: Post Coverage Report to PR
+      uses: kefasjw/lcov-pull-request-report@v1
+      with:
+        lcov-file: coverage/lcov.info
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        working-directory: .
+        comment-title: 'Coverage Report'
+        all-files-minimum-coverage: 80
+        changed-files-minimum-coverage: 80
+        artifact-name: coverage-report
